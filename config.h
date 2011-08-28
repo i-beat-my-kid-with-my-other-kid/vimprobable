@@ -46,6 +46,7 @@ static const char statusfont[]          = "monospace bold 8";   /* font for stat
 #define             ENABLE_INCREMENTAL_SEARCH
 #define             ENABLE_GTK_PROGRESS_BAR
 #define             ENABLE_WGET_PROGRESS_BAR
+#define             ENABLE_WGET_PACMAN_PROGRESS_BAR
 static const int progressbartick        = 20;
 static const char progressborderleft    = '[';
 static const char progressbartickchar   = '=';

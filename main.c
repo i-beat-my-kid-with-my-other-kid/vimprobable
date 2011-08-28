@@ -186,11 +186,19 @@ void
 ascii_bar(int total, int state, char *string) {
     int i;
 
+#ifdef ENABLE_WGET_PACMAN_PROGRESS_BAR
+    for (i = 0; i < state; i++)
+        string[i] = '-';
+    string[i++] = (i%2) ? 'c' : 'C';
+    for (; i < total; i++)
+        string[i] = (i%2) ? 'o' : ' ';
+#else
     for (i = 0; i < state; i++)
         string[i] = progressbartickchar;
     string[i++] = progressbarcurrent;
     for (; i < total; i++)
         string[i] = progressbarspacer;
+#endif
     string[i] = '\0';
 }
 #endif
