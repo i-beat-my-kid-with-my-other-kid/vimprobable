@@ -93,10 +93,11 @@ Key keys[] = {
     { GDK_SHIFT_MASK,       0,              GDK_N,          search,     {DirectionPrev      | CaseInsensitive   | Wrapping} },
 
     { GDK_SHIFT_MASK,       0,              GDK_colon,      input,      {.s = ":" } },
-    { 0,                    0,              GDK_o,          input,      {.s = ":open "} },
-    { GDK_SHIFT_MASK,       0,              GDK_O,          input,      {.s = ":open ", .i = InsertCurrentURL} },
-    { 0,                    0,              GDK_t,          input,      {.s = ":tabopen "} },
-    { GDK_SHIFT_MASK,       0,              GDK_T,          input,      {.s = ":tabopen ", .i = InsertCurrentURL} },
+    { 0,                    0,              GDK_s,          input,      {.s = ":set "} },
+    { 0,                    0,              GDK_o,          input,      {.s = ":o "} },
+    { GDK_SHIFT_MASK,       0,              GDK_O,          input,      {.s = ":o ", .i = InsertCurrentURL} },
+    { 0,                    0,              GDK_t,          input,      {.s = ":t "} },
+    { GDK_SHIFT_MASK,       0,              GDK_T,          input,      {.s = ":t ", .i = InsertCurrentURL} },
     { 0,                    0,              GDK_slash,      input,      {.s = "/"} },
     { GDK_SHIFT_MASK,       0,              GDK_slash,      input,      {.s = "/"} },
     { 0,                    0,              GDK_KP_Divide,  input,      {.s = "/"} },
@@ -109,13 +110,17 @@ Key keys[] = {
     { GDK_CONTROL_MASK,     GDK_VoidSymbol, GDK_bracketleft,set,        {ModeNormal} },
     { GDK_CONTROL_MASK,     0,              GDK_z,          set,        {ModePassThrough} },
     { GDK_CONTROL_MASK,     0,              GDK_v,          set,        {ModeSendKey} },
-    { 0,                    0,              GDK_f,          input,      {.s = "."} },
-    { GDK_SHIFT_MASK,       0,              GDK_F,          input,      {.s = ","} },
+    { 0,                    0,              GDK_period,     input,      {.s = "."} },
+    { 0,                    0,              GDK_c,          input,      {.s = ","} },
 
     { 0,                    GDK_g,          GDK_i,          focus_input,{} },
     { 0,                    0,              GDK_u,          revive,     {} },
 
     { 0,                    0,              GDK_d,          quit,       {0} },
+
+    { 0,                    GDK_g,          GDK_f,          view_source, {0} },
+    { GDK_SHIFT_MASK,       0,              GDK_A,          bookmark,    {0} },
+
 	/* leave this last line as last */
     { 0,                    0,              0,              0,          {0} },
 };

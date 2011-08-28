@@ -13,40 +13,39 @@
 #define INTERNAL_VERSION "Vimprobable2/"VERSION
 
 /* general settings */
-char startpage[MAX_SETTING_SIZE]      = "http://www.vimprobable.org/";
-char useragent[MAX_SETTING_SIZE]      = "Vimprobable2/" VERSION;
+char startpage[MAX_SETTING_SIZE]      = "";
+char useragent[MAX_SETTING_SIZE]      = "Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5";
 char acceptlanguage[MAX_SETTING_SIZE] = "";
-static const gboolean enablePlugins     = TRUE; /* TRUE keeps plugins enabled */
-static const gboolean enableJava        = TRUE; /* FALSE disables Java applets */
-static const gboolean enablePagecache   = FALSE; /* TRUE turns on the page cache. */
+static const gboolean enablePlugins   = FALSE;
+static const gboolean enableJava      = FALSE;
+static const gboolean enablePagecache = FALSE;
 
 /* appearance */
-char statusbgcolor[MAX_SETTING_SIZE]    = "#000000";            /* background color for status bar */
-char statuscolor[MAX_SETTING_SIZE]      = "#ffffff";            /* color for status bar */
-char sslbgcolor[MAX_SETTING_SIZE]       = "#b0ff00";            /* background color for status bar with SSL url */
-char sslcolor[MAX_SETTING_SIZE]         = "#000000";            /* color for status bar with SSL url */
+char statusbgcolor[MAX_SETTING_SIZE]    = "#0f0f0f";            /* background color for status bar */
+char statuscolor[MAX_SETTING_SIZE]      = "#008787";            /* color for status bar */
+char sslbgcolor[MAX_SETTING_SIZE]       = "#0f0f0f";            /* background color for status bar with SSL url */
+char sslcolor[MAX_SETTING_SIZE]         = "#00cc55";            /* color for status bar with SSL url */
 
                                         /*  normal,                 warning,                error       */
-static const char *urlboxfont[]         = { "monospace normal 8",   "monospace normal 8",   "monospace bold 8"};
-static const char *urlboxcolor[]        = { NULL,                   "#ff0000",              "#ffffff" };
-static const char *urlboxbgcolor[]      = { NULL,                   NULL,                   "#ff0000" };
+static const char *urlboxfont[]         = { "terminus normal 8",    "terminus normal 8",    "terminus normal 8"};
+static const char *urlboxcolor[]        = { "#008787",              "#ed3434",              "#ed3434" };
+static const char *urlboxbgcolor[]      = { "#0f0f0f",              "#0f0f0f",              "#0f0f0f" };
 
                                         /*  normal,                 error               */
-static const char *completionfont[]     = { "monospace normal 8",   "monospace bold 8" };
+static const char *completionfont[]     = { "terminus normal 8",    "terminus normal 8" };
                                                                                         /* topborder color */
-static const char *completioncolor[]    = { "#000000",              "#ff00ff",              "#000000" };
+static const char *completioncolor[]    = { "#008787",              "#ed3434",              "#0f0f0f" };
                                                                                         /* current row background */
-static const char *completionbgcolor[]  = { "#ffffff",              "#ffffff",              "#fff000" };
+static const char *completionbgcolor[]  = { "#0f0f0f",              "#0f0f0f",              "#006060" };
 /* pango markup for prefix highliting:      opening,                closing             */
 #define             COMPLETION_TAG_OPEN     "<b>"
 #define             COMPLETION_TAG_CLOSE    "</b>"
 
-static const char statusfont[]          = "monospace bold 8";   /* font for status bar */
+static const char statusfont[]          = "terminus normal 8";   /* font for status bar */
 #define             ENABLE_HISTORY_INDICATOR
 #define             ENABLE_INCREMENTAL_SEARCH
-#define             ENABLE_GTK_PROGRESS_BAR
 #define             ENABLE_WGET_PROGRESS_BAR
-static const int progressbartick        = 20;
+static const int progressbartick        = 40;
 static const char progressborderleft    = '[';
 static const char progressbartickchar   = '=';
 static const char progressbarcurrent    = '>';
@@ -55,17 +54,17 @@ static const char progressborderright   = ']';
 
 /* cookies */
 #define             ENABLE_COOKIE_SUPPORT
-#define             COOKIES_STORAGE_FILENAME    "%s/.config/vimprobable/cookies", getenv("HOME")
+#define             COOKIES_STORAGE_FILENAME    "%s/vimprobable/cookies", getenv("XDG_CONFIG_HOME")
 #define             COOKIES_STORAGE_READONLY    FALSE   /* if TRUE new cookies will be lost if you quit */
 
 /* downloads directory */
-#define             DOWNLOADS_PATH              "%s", getenv("HOME")
+#define             DOWNLOADS_PATH              "%s/downloads", getenv("HOME")
 
 /* font size */
-#define             DEFAULT_FONT_SIZE           12
+#define             DEFAULT_FONT_SIZE           9
 
 /* user styles */
-#define             USER_STYLESHEET             "%s/.config/vimprobable/style.css", getenv("HOME")
+#define             USER_STYLESHEET             "%s/vimprobable/style.css", getenv("XDG_CONFIG_HOME")
 
 /* proxy */
 static const gboolean use_proxy         = TRUE; /* TRUE if you're going to use a proxy (whose address
@@ -83,12 +82,11 @@ gboolean complete_case_sensitive        = TRUE;
 /* search engines */
 static Searchengine searchengines[] = {
     { "i",          "http://ixquick.com/do/metasearch.pl?query=%s" },
-    { "s",          "https://ssl.scroogle.org/cgi-bin/nbbwssl.cgi?Gw=%s" },
-    { "w",          "https://secure.wikimedia.org/wikipedia/en/w/index.php?title=Special%%3ASearch&search=%s&go=Go" },
-    { "wd",         "https://secure.wikimedia.org/wikipedia/de/w/index.php?title=Special%%3ASearch&search=%s&go=Go" },
+    { "ss",         "https://ssl.scroogle.org/cgi-bin/nbbwssl.cgi?Gw=%s" },
+    { "s",          "http://scroogle.org/cgi-bin/nbbw.cgi?Gw=%s" },
 };
 
-static char defaultsearch[MAX_SETTING_SIZE] = "i";
+static char defaultsearch[MAX_SETTING_SIZE] = "s";
 
 /* command mapping */
 Command commands[COMMANDSIZE] = {
@@ -126,10 +124,10 @@ Command commands[COMMANDSIZE] = {
     { "jumpright",                                      scroll,           {ScrollJumpTo   | DirectionRight} },
     { "jumptop",                                        scroll,           {ScrollJumpTo   | DirectionTop} },
     { "jumpbottom",                                     scroll,           {ScrollJumpTo   | DirectionBottom} },
-    { "pageup",                                         scroll,           {ScrollMove     | DirectionTop      | UnitPage} },	
+    { "pageup",                                         scroll,           {ScrollMove     | DirectionTop      | UnitPage} },
     { "pagedown",                                       scroll,           {ScrollMove     | DirectionBottom   | UnitPage} },
-    { "navigationback",   	                            navigate,         {NavigationBack} },
-    { "navigationforward",	                            navigate,         {NavigationForward} },
+    { "navigationback",                                 navigate,         {NavigationBack} },
+    { "navigationforward",                              navigate,         {NavigationForward} },
     { "scrollleft",                                     scroll,           {ScrollMove     | DirectionLeft     | UnitLine} },
     { "scrollright",                                    scroll,           {ScrollMove     | DirectionRight    | UnitLine} },
     { "scrollup",                                       scroll,           {ScrollMove     | DirectionTop      | UnitLine} },
@@ -139,22 +137,17 @@ Command commands[COMMANDSIZE] = {
 /* mouse bindings
    you can use MOUSE_BUTTON_1 to MOUSE_BUTTON_5
 */
-static Mouse mouse[] = {
-    /* modmask,             modkey,         button,            function,        argument */
-    { 0,                    0,              MOUSE_BUTTON_2,    paste,           {TargetCurrent  | ClipboardPrimary  | ClipboardGTK, rememberedURI} },
-    { GDK_CONTROL_MASK,     0,              MOUSE_BUTTON_2,    paste,           {TargetNew  | ClipboardPrimary  | ClipboardGTK} },
-    { GDK_CONTROL_MASK,     0,              MOUSE_BUTTON_1,    open_remembered, {TargetNew} },
-};
+static Mouse mouse[] = { };
 
 /* settings (arguments of :set command) */
 static Setting browsersettings[] = {
     /* public name,      internal variable   webkit setting                 integer value?  boolean value?   colour value?   reload page? */
     { "useragent",       useragent,          "user-agent",                  FALSE,          FALSE,           FALSE,          FALSE  },
-    { "scripts",         NULL,               "enable-scripts",              FALSE,          TRUE,            FALSE,          FALSE  },
-    { "plugins",         NULL,               "enable-plugins",              FALSE,          TRUE,            FALSE,          FALSE  },
+    { "scripts",         NULL,               "enable-scripts",              FALSE,          TRUE,            FALSE,          TRUE   },
+    { "plugins",         NULL,               "enable-plugins",              FALSE,          TRUE,            FALSE,          TRUE   },
     { "pagecache",       NULL,               "enable-page-cache",           FALSE,          TRUE,            FALSE,          FALSE  },
     { "java",            NULL,               "enable-java-applet",          FALSE,          TRUE,            FALSE,          FALSE  },
-    { "images",          NULL,               "auto-load-images",            FALSE,          TRUE,            FALSE,          FALSE  },
+    { "images",          NULL,               "auto-load-images",            FALSE,          TRUE,            FALSE,          TRUE   },
     { "shrinkimages",    NULL,               "auto-shrink-images",          FALSE,          TRUE,            FALSE,          FALSE  },
     { "cursivefont",     NULL,               "cursive-font-family",         FALSE,          FALSE,           FALSE,          FALSE  },
     { "defaultencoding", NULL,               "default-encoding",            FALSE,          FALSE,           FALSE,          FALSE  },

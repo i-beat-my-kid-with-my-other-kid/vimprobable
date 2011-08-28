@@ -47,7 +47,7 @@ function vimprobable_show_hints(inputText) {
             if (computedStyle.getPropertyValue("visibility") != "visible" || computedStyle.getPropertyValue("display") == "none")
                 continue;
             var leftpos = Math.max((rect.left + scrollX), scrollX);
-            var toppos = Math.max((rect.top + scrollY), scrollY);
+            var toppos = Math.max((rect.top + scrollY), scrollY) - 4;
             vimprobable_a.push(elem);
             /* making this block DOM compliant */
             var hint = document.createElement("span");
@@ -56,10 +56,13 @@ function vimprobable_show_hints(inputText) {
             hint.style.position = "absolute";
             hint.style.left = leftpos + "px";
             hint.style.top =  toppos + "px";
-            hint.style.background = "red";
+            hint.style.background = "#5c5c5c";
             hint.style.color = "#fff";
-            hint.style.font = "bold 10px monospace";
+            hint.style.font = "8px terminus";
             hint.style.zIndex = "99";
+            hint.style.border = "solid 2px #00ee55";
+            hint.style.opacity = "0.9";
+            hint.style["border-radius"] = "4px";
             var text = document.createTextNode(vimprobable_j + 1);
             hint.appendChild(text);
             div.appendChild(hint);
@@ -68,7 +71,7 @@ function vimprobable_show_hints(inputText) {
             vimprobable_backgrounds[vimprobable_j] = elem.style.background;
             /* make the link black to ensure it's readable */
             elem.style.color = "#000";
-            elem.style.background = "#ff0";
+            elem.style.background = "#008787";
             vimprobable_j++;
         }
         i = 0;
@@ -148,7 +151,7 @@ function vimprobable_update_hints(n)
     } else {
         if (typeof(vimprobable_a[n - 1]) != "undefined") {
             (vimprobable_h = vimprobable_a[n - 1]).className = vimprobable_a[n - 1].className.replace("hinting_mode_hint", "hinting_mode_hint_focus");
-            vimprobable_h.style.background = "#8f0";
+            vimprobable_h.style.background = "#ed3434";
         }
     }
 }
