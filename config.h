@@ -45,6 +45,7 @@ static const char statusfont[]          = "terminus normal 8";   /* font for sta
 #define             ENABLE_HISTORY_INDICATOR
 #define             ENABLE_INCREMENTAL_SEARCH
 #define             ENABLE_WGET_PROGRESS_BAR
+#define             ENABLE_WGET_PACMAN_PROGRESS_BAR
 static const int progressbartick        = 40;
 static const char progressborderleft    = '[';
 static const char progressbartickchar   = '=';
