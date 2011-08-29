@@ -16,9 +16,10 @@
 char startpage[MAX_SETTING_SIZE]      = "";
 char useragent[MAX_SETTING_SIZE]      = "Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5";
 char acceptlanguage[MAX_SETTING_SIZE] = "";
-static const gboolean enablePlugins   = FALSE;
-static const gboolean enableJava      = FALSE;
-static const gboolean enablePagecache = FALSE;
+gboolean enablePlugins                = FALSE; /* TRUE keeps plugins enabled */
+gboolean enableScripts                = FALSE; /* TRUE keeps scripts enabled */
+gboolean enableJava                   = FALSE; /* TRUE keeps Java applets enabled */
+static const gboolean enablePagecache = FALSE; /* TRUE turns on the page cache. */
 
 /* appearance */
 char statusbgcolor[MAX_SETTING_SIZE]    = "#0f0f0f";            /* background color for status bar */
@@ -57,6 +58,10 @@ static const char progressborderright   = ']';
 #define             ENABLE_COOKIE_SUPPORT
 #define             COOKIES_STORAGE_FILENAME    "%s/vimprobable/cookies", getenv("XDG_CONFIG_HOME")
 #define             COOKIES_STORAGE_READONLY    FALSE   /* if TRUE new cookies will be lost if you quit */
+
+/* whitelist */
+#define             ENABLE_WHITELIST_SUPPORT
+#define             WHITELIST_STORAGE_FILENAME  "%s/vimprobable/whitelist", getenv("XDG_CONFIG_HOME")
 
 /* downloads directory */
 #define             DOWNLOADS_PATH              "%s/downloads", getenv("HOME")

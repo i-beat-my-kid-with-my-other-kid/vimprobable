@@ -1729,6 +1729,15 @@ process_set_line(char *line) {
             if (strlen(my_pair.what) == 14 && strncmp("completioncase", my_pair.what, 14) == 0)
                 complete_case_sensitive = boolval;
 
+            if (strlen(my_pair.what) == 7 && strncmp("scripts", my_pair.what, 7) == 0)
+                enableScripts = boolval;
+
+            if (strlen(my_pair.what) == 7 && strncmp("plugins", my_pair.what, 7) == 0)
+                enablePlugins = boolval;
+
+            if (strlen(my_pair.what) == 4 && strncmp("java", my_pair.what, 4) == 0)
+                enableJava = boolval;
+
             /* reload page? */
             if (browsersettings[i].reload)
                 webkit_web_view_reload(webview);
@@ -2011,6 +2020,64 @@ update_state() {
 }
 
 void
+check_whitelist(const char *uri)
+{
+#ifdef ENABLE_WHITELIST_SUPPORT
+    gboolean scripts, plugins, java;
+    const char *filename;
+    FILE *file;
+    char buffer[BUFFERSIZE], c;
+    gchar **tok;
+    guint l;
+    int i;
+    WebKitWebSettings *settings;
+
+    scripts = plugins = java = FALSE;
+    filename = g_strdup_printf(WHITELIST_STORAGE_FILENAME);
+    file = fopen(filename, "r");
+    g_free((gpointer)filename);
+    if (file == NULL)
+        return;
+    while (fgets(buffer, BUFFERSIZE-1, file)) {
+        if (!isalpha(buffer[0]))
+            continue;
+        /* skip too long lines */
+        if (buffer[strlen(buffer)-1] != '\n') {
+            c = getc(file);
+            if (c != EOF) {  /* this is not the last line */
+                while ((c=getc(file)) != EOF && c != '\n');
+                continue;
+            }
+        }
+        tok = g_strsplit(buffer, " ", 4);
+        l = g_strv_length(tok);
+        if (l < 2 || strncmp(tok[l-1], uri, strlen(tok[l-1])-1)) {
+            g_strfreev(tok);
+            continue;
+        }
+        for (i = 0; i < l-1; i++) {
+            if (strcmp(tok[i], "P") == 0)
+                plugins = TRUE;
+            if (strcmp(tok[i], "S") == 0)
+                scripts = TRUE;
+            if (strcmp(tok[i], "J") == 0)
+                java = TRUE;
+        }
+        g_strfreev(tok);
+        break;
+    }
+    fclose(file);
+    settings = webkit_web_view_get_settings(webview);
+    if (!enablePlugins)
+        g_object_set(G_OBJECT(settings), "enable-plugins", plugins, NULL);
+    if (!enableScripts)
+        g_object_set(G_OBJECT(settings), "enable-scripts", scripts, NULL);
+    if (!enableJava)
+        g_object_set(G_OBJECT(settings), "enable-java-applet", java, NULL);
+#endif
+}
+
+void
 setup_modkeys() {
     unsigned int i;
     modkeys = calloc(LENGTH(keys) + 1, sizeof(char));
@@ -2098,7 +2165,7 @@ setup_settings() {
 
     session = webkit_get_default_session();
     g_object_set(G_OBJECT(settings), "default-font-size", DEFAULT_FONT_SIZE, NULL);
-    g_object_set(G_OBJECT(settings), "enable-scripts", enablePlugins, NULL);
+    g_object_set(G_OBJECT(settings), "enable-scripts", enableScripts, NULL);
     g_object_set(G_OBJECT(settings), "enable-plugins", enablePlugins, NULL);
     g_object_set(G_OBJECT(settings), "enable-java-applet", enableJava, NULL);
     g_object_set(G_OBJECT(settings), "enable-page-cache", enablePagecache, NULL);

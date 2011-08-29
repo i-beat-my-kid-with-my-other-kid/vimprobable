@@ -22,5 +22,6 @@ webview_navigation_cb(WebKitWebView * webview, WebKitWebFrame * frame,
 		      WebKitNetworkRequest * request,
 		      WebKitWebPolicyDecision * decision, gpointer user_data)
 {
+	check_whitelist(webkit_network_request_get_uri(request));
 	return FALSE;
 }
