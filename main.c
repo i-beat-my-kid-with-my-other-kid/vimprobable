@@ -2121,6 +2121,7 @@ setup_gui() {
     gtk_widget_modify_bg(eventbox, GTK_STATE_NORMAL, &bg);
     gtk_widget_set_name(GTK_WIDGET(window), "Vimprobable2");
     gtk_window_set_geometry_hints(window, NULL, &hints, GDK_HINT_MIN_SIZE);
+    set_widget_font_and_color(inputbox, urlboxfont[Info], urlboxbgcolor[Info], urlboxcolor[Info]);
 
 #ifdef DISABLE_SCROLLBAR
     viewport = gtk_scrolled_window_new(NULL, NULL);
