@@ -1973,6 +1973,21 @@ update_state() {
     }
 #endif
 
+    /* script, plugin and java status */
+    {
+        WebKitWebSettings *settings = webkit_web_view_get_settings(webview);
+        gboolean plugins, scripts, java;
+        g_object_get(G_OBJECT(settings), "enable-plugins", &plugins, NULL);
+        g_object_get(G_OBJECT(settings), "enable-scripts", &scripts, NULL);
+        g_object_get(G_OBJECT(settings), "enable-java-applet", &java, NULL);
+        if (plugins)
+            g_string_append(status, " P");
+        if (scripts)
+            g_string_append(status, " S");
+        if (java)
+            g_string_append(status, " J");
+    }
+
     /* and the current scroll position */
     {
         int max = gtk_adjustment_get_upper(adjust_v) - gtk_adjustment_get_page_size(adjust_v);
