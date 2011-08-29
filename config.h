@@ -16,9 +16,10 @@
 char startpage[MAX_SETTING_SIZE]      = "http://www.vimprobable.org/";
 char useragent[MAX_SETTING_SIZE]      = "Vimprobable2/" VERSION;
 char acceptlanguage[MAX_SETTING_SIZE] = "";
-static const gboolean enablePlugins     = TRUE; /* TRUE keeps plugins enabled */
-static const gboolean enableJava        = TRUE; /* FALSE disables Java applets */
-static const gboolean enablePagecache   = FALSE; /* TRUE turns on the page cache. */
+gboolean enablePlugins                = FALSE; /* TRUE keeps plugins enabled */
+gboolean enableScripts                = FALSE; /* TRUE keeps scripts enabled */
+gboolean enableJava                   = FALSE; /* TRUE keeps Java applets enabled */
+static const gboolean enablePagecache = FALSE; /* TRUE turns on the page cache. */
 
 /* appearance */
 char statusbgcolor[MAX_SETTING_SIZE]    = "#000000";            /* background color for status bar */
@@ -57,6 +58,10 @@ static const char progressborderright   = ']';
 #define             ENABLE_COOKIE_SUPPORT
 #define             COOKIES_STORAGE_FILENAME    "%s/.config/vimprobable/cookies", getenv("HOME")
 #define             COOKIES_STORAGE_READONLY    FALSE   /* if TRUE new cookies will be lost if you quit */
+
+/* whitelist */
+#define             ENABLE_WHITELIST_SUPPORT
+#define             WHITELIST_STORAGE_FILENAME  "%s/.config/vimprobable/whitelist", getenv("HOME")
 
 /* downloads directory */
 #define             DOWNLOADS_PATH              "%s", getenv("HOME")
