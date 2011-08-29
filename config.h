@@ -15,7 +15,7 @@
 /* general settings */
 char startpage[MAX_SETTING_SIZE]      = "about:blank";
 char useragent[MAX_SETTING_SIZE]      = "Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5";
-char acceptlanguage[MAX_SETTING_SIZE] = "";
+char acceptlanguage[MAX_SETTING_SIZE] = "en-us";
 gboolean enablePlugins                = FALSE; /* TRUE keeps plugins enabled */
 gboolean enableScripts                = FALSE; /* TRUE keeps scripts enabled */
 gboolean enableJava                   = FALSE; /* TRUE keeps Java applets enabled */
