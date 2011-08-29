@@ -1006,7 +1006,9 @@ open_arg(const Arg *arg) {
         navigate(&a);
     else if (arg->i == TargetCurrent) {
         if (!strcmp(s, "about:blank")) {
-            webkit_web_view_load_uri(webview, "about:blank");
+            webkit_web_view_load_string(webview, "<html><body class=\""
+	                                "vimprobable_blank\"></body></html>",
+					NULL, NULL, "about:blank");
             return TRUE;
         }
         while(*s == ' ') /* strip leading whitespace */
