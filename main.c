@@ -1013,6 +1013,10 @@ open_arg(const Arg *arg) {
     if (!arg->s)
         navigate(&a);
     else if (arg->i == TargetCurrent) {
+        if (!strcmp(s, "about:blank")) {
+            webkit_web_view_load_uri(webview, "about:blank");
+            return TRUE;
+        }
         while(*s == ' ') /* strip leading whitespace */
             ++s;
         p = (s + strlen(s) - 1);
