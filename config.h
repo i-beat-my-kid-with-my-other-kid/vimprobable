@@ -9,7 +9,7 @@
 */
 
 /* Vimprobable version number */
-#define VERSION "0.9.9.1"
+#define VERSION "0.9.10.0"
 #define INTERNAL_VERSION "Vimprobable2/"VERSION
 
 /* general settings */
@@ -55,7 +55,7 @@ static const char progressborderright   = ']';
 
 /* cookies */
 #define             ENABLE_COOKIE_SUPPORT
-#define             COOKIES_STORAGE_FILENAME    "%s/.config/vimprobable/cookies", getenv("HOME")
+#define             COOKIES_STORAGE_FILENAME    "%s/vimprobable/cookies", config_base
 #define             COOKIES_STORAGE_READONLY    FALSE   /* if TRUE new cookies will be lost if you quit */
 
 /* downloads directory */
@@ -65,7 +65,7 @@ static const char progressborderright   = ']';
 #define             DEFAULT_FONT_SIZE           12
 
 /* user styles */
-#define             USER_STYLESHEET             "%s/.config/vimprobable/style.css", getenv("HOME")
+#define             USER_STYLESHEET             "%s/vimprobable/style.css", config_base
 
 /* proxy */
 static const gboolean use_proxy         = TRUE; /* TRUE if you're going to use a proxy (whose address
