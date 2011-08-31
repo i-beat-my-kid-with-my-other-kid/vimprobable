@@ -6,6 +6,7 @@
     (c) 2010-2011 by Hans-Peter Deifel
     (c) 2010-2011 by Thomas Adam
     (c) 2011 by Albert Kim
+    (c) 2011 by Daniel Carl
     see LICENSE file
 */
 
@@ -48,6 +49,7 @@ static gboolean webview_open_in_new_window_cb(WebKitWebView *webview, WebKitWebF
 static void webview_progress_changed_cb(WebKitWebView *webview, int progress, gpointer user_data);
 static void webview_title_changed_cb(WebKitWebView *webview, WebKitWebFrame *frame, char *title, gpointer user_data);
 static void window_destroyed_cb(GtkWidget *window, gpointer func_data);
+static gboolean blank_cb(void);
 
 /* functions */
 static gboolean bookmark(const Arg *arg);
@@ -137,6 +139,7 @@ static char *winid = NULL;
 static char rememberedURI[1024] = "";
 static char followTarget[8] = "";
 char *error_msg = NULL;
+char *config_base = NULL;
 
 GList *activeDownloads;
 
@@ -304,6 +307,11 @@ webview_download_cb(WebKitWebView *webview, WebKitDownload *download, gpointer u
     return TRUE;
 }
 
+gboolean
+blank_cb(void) {
+    return TRUE;
+}
+
 void
 download_progress(WebKitDownload *d, GParamSpec *pspec) {
     Arg a;
@@ -378,7 +386,7 @@ webview_keypress_cb(WebKitWebView *webview, GdkEventKey *event) {
     case ModeInsert:
         if (IS_ESCAPE(event)) {
             a.i = Silent;
-            a.s = g_strdup("vimprobable_clearfocus()");
+            a.s = g_strdup("hints.clearFocus();");
             script(&a);
             a.i = ModeNormal;
             return set(&a);
@@ -478,9 +486,9 @@ inputbox_activate_cb(GtkEntry *entry, gpointer user_data) {
         search_direction = forward;
         search_handle = g_strdup(&text[1]);
 #endif
-    } else if (count && (text[0] == '.' || text[0] == ',')) {
+    } else if (text[0] == '.' || text[0] == ',') {
         a.i = Silent;
-        a.s = g_strdup_printf("vimprobable_fire(%d)", count);
+        a.s = g_strdup_printf("hints.fire();");
         script(&a);
         update_state();
     } else
@@ -495,6 +503,29 @@ inputbox_keypress_cb(GtkEntry *entry, GdkEventKey *event) {
     Arg a;
     int numval;
 
+    if (mode == ModeHints) {
+        if (event->keyval == GDK_Tab) {
+            a.i = Silent;
+            a.s = g_strdup_printf("hints.focusNextHint();");
+            script(&a);
+            update_state();
+            return TRUE;
+        }
+        if (event->keyval == GDK_ISO_Left_Tab) {
+            a.i = Silent;
+            a.s = g_strdup_printf("hints.focusPreviousHint();");
+            script(&a);
+            update_state();
+            return TRUE;
+        }
+        if (event->keyval == GDK_Return) {
+            a.i = Silent;
+            a.s = g_strdup_printf("hints.fire();");
+            script(&a);
+            update_state();
+            return TRUE;
+        }
+    }
     switch (event->keyval) {
         case GDK_bracketleft:
         case GDK_Escape:
@@ -528,7 +559,7 @@ inputbox_keypress_cb(GtkEntry *entry, GdkEventKey *event) {
                 (event->keyval == GDK_BackSpace)) {
             count /= 10;
             a.i = Silent;
-            a.s = g_strdup_printf("vimprobable_update_hints(%d)", count);
+            a.s = g_strdup_printf("hints.updateHints(%d);", count);
             script(&a);
             update_state();
             return TRUE;
@@ -539,7 +570,7 @@ inputbox_keypress_cb(GtkEntry *entry, GdkEventKey *event) {
             /* allow a zero as non-first number */
             count = (count ? count * 10 : 0) + numval;
             a.i = Silent;
-            a.s = g_strdup_printf("vimprobable_update_hints(%d)", count);
+            a.s = g_strdup_printf("hints.updateHints(%d);", count);
             script(&a);
             update_state();
             return TRUE;
@@ -606,18 +637,23 @@ static gboolean inputbox_changed_cb(GtkEditable *entry, gpointer user_data) {
     } else if (gtk_widget_is_focus(GTK_WIDGET(entry)) && length >= 1 &&
             (text[0] == '.' || text[0] == ',')) {
         a.i = Silent;
-        a.s = g_strdup("vimprobable_cleanup()");
-        script(&a);
+        switch (text[0]) {
+            case '.':
+                a.s = g_strconcat("hints.createHints('", text + 1, "', 'f');", NULL);
+                break;
 
-        a.i = Silent;
-        a.s = g_strconcat("vimprobable_show_hints('", text + 1, "')", NULL);
+            case ',':
+                a.s = g_strconcat("hints.createHints('", text + 1, "', 'F');", NULL);
+                break;
+        }
+        count = 0;
         script(&a);
 
         return TRUE;
     } else if (length == 0 && followTarget[0]) {
         mode = ModeNormal;
         a.i = Silent;
-        a.s = g_strdup("vimprobable_clear()");
+        a.s = g_strdup("hints.clearHints();");
         script(&a);
         count = 0;
         update_state();
@@ -931,15 +967,6 @@ input(const Arg *arg) {
      */
     set_widget_font_and_color(inputbox, urlboxfont[index], urlboxbgcolor[index], urlboxcolor[index]);
 
-    if (arg->s[0] == '.' || arg->s[0] == ',') {
-        mode = ModeHints;
-        memset(followTarget, 0, 8);
-        strncpy(followTarget, arg->s[0] == '.' ? "current" : "new", 8);
-        a.i = Silent;
-        a.s = g_strdup("vimprobable_show_hints()");
-        script(&a);
-    }
-
     /* to avoid things like :open URL :open URL2  or :open :open URL */
     gtk_entry_set_text(GTK_ENTRY(inputbox), "");
     gtk_editable_insert_text(GTK_EDITABLE(inputbox), arg->s, -1, &pos);
@@ -947,6 +974,24 @@ input(const Arg *arg) {
         gtk_editable_insert_text(GTK_EDITABLE(inputbox), url, -1, &pos);
     gtk_widget_grab_focus(inputbox);
     gtk_editable_set_position(GTK_EDITABLE(inputbox), -1);
+
+    if (arg->s[0] == '.' || arg->s[0] == ',') {
+        mode = ModeHints;
+        memset(followTarget, 0, 8);
+        strncpy(followTarget, "current", 8);
+        a.i = Silent;
+        switch (arg->s[0]) {
+            case '.':
+                a.s = g_strdup("hints.createHints('', 'f');");
+                break;
+
+            case ',':
+                a.s = g_strdup("hints.createHints('', 'F');");
+                break;
+        }
+        count = 0;
+        script(&a);
+    }
 
     return TRUE;
 }
@@ -1083,7 +1128,7 @@ open_remembered(const Arg *arg)
 
 gboolean
 yank(const Arg *arg) {
-    const char *url, *feedback;
+    const char *url, *feedback, *content;
 
     if (arg->i & SourceURL) {
         url = webkit_web_view_get_uri(webview);
@@ -1095,8 +1140,18 @@ yank(const Arg *arg) {
             gtk_clipboard_set_text(clipboards[0], url, -1);
         if (arg->i & ClipboardGTK)
             gtk_clipboard_set_text(clipboards[1], url, -1);
-    } else
+    } else {
         webkit_web_view_copy_clipboard(webview);
+        if (arg->i & ClipboardPrimary)
+            content = gtk_clipboard_wait_for_text(clipboards[0]);
+        if (!content && arg->i & ClipboardGTK)
+            content = gtk_clipboard_wait_for_text(clipboards[1]);
+        if (content) {
+            feedback = g_strconcat("Yanked ", content, NULL);
+            g_free((gpointer *)content);
+            give_feedback(feedback);
+        }
+    }
     return TRUE;
 }
 
@@ -1282,6 +1337,8 @@ quickmark(const Arg *a) {
     char *fn = g_strdup_printf(QUICKMARK_FILE);
     FILE *fp;
     fp = fopen(fn, "r");
+    g_free(fn);
+    fn = NULL;
     char buf[100];
 
     if (fp != NULL && b < 10) {
@@ -1328,22 +1385,14 @@ script(const Arg *arg) {
         echo(&a);
         g_free(a.s);
     }
+    /* switch mode according to scripts return value */
     if (value) {
-        if (strncmp(value, "fire;", 5) == 0) {
-            count = 0;
-            a.s = g_strconcat("vimprobable_fire(", (value + 5), ")", NULL);
-            a.i = Silent;
-            script(&a);
-        } else if (strncmp(value, "open;", 5) == 0) {
-            count = 0;
+        if (strncmp(value, "done;", 5) == 0) {
             a.i = ModeNormal;
             set(&a);
-            if (strncmp(followTarget, "new", 3) == 0)
-                a.i = TargetNew;
-            else
-                a.i = TargetCurrent;
-            a.s = (value + 5);
-            open_arg(&a);
+        } else if (strncmp(value, "insert;", 7) == 0) {
+            a.i = ModeInsert;
+            set(&a);
         }
     }
     if (arg->s)
@@ -1583,7 +1632,7 @@ static gboolean
 focus_input(const Arg *arg) {
     static Arg a;
 
-    a.s = g_strconcat("vimprobable_focus_input()", NULL);
+    a.s = g_strdup("hints.focusInput();");
     a.i = Silent;
     script(&a);
     update_state();
@@ -1902,10 +1951,11 @@ toggle_scrollbars(gboolean onoff) {
 	if (onoff == TRUE) {
 		adjust_h = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(viewport));
 		adjust_v = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(viewport));
-	}
-	else {
+		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(viewport), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	} else {
 		adjust_v = gtk_range_get_adjustment(GTK_RANGE(scroll_v));
 		adjust_h = gtk_range_get_adjustment(GTK_RANGE(scroll_h));
+		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(viewport), GTK_POLICY_NEVER, GTK_POLICY_NEVER);
 	}
 	gtk_widget_set_scroll_adjustments (GTK_WIDGET(webview), adjust_h, adjust_v);
 
@@ -2203,6 +2253,7 @@ setup_settings() {
 
 void
 setup_signals() {
+    WebKitWebFrame *frame = webkit_web_view_get_main_frame(webview);
 #ifdef ENABLE_COOKIE_SUPPORT
     /* Headers. */
     g_signal_connect_after(G_OBJECT(session), "request-started", G_CALLBACK(new_generic_request), NULL);
@@ -2213,6 +2264,9 @@ setup_signals() {
     g_object_connect(G_OBJECT(window),
         "signal::destroy",                              G_CALLBACK(window_destroyed_cb),            NULL,
     NULL);
+    /* frame */
+    g_signal_connect(G_OBJECT(frame),
+        "scrollbars-policy-changed",                    G_CALLBACK(blank_cb),                       NULL);
     /* webview */
     g_object_connect(G_OBJECT(webview),
         "signal::title-changed",                        G_CALLBACK(webview_title_changed_cb),        NULL,
@@ -2380,7 +2434,7 @@ main(int argc, char *argv[]) {
     static GOptionEntry opts[] = {
             { "version", 'v', 0, G_OPTION_ARG_NONE, &ver, "print version", NULL },
             { "embed", 'e', 0, G_OPTION_ARG_STRING, &winid, "embedded", NULL },
-	    { "configfile", 'c', 0, G_OPTION_ARG_STRING, &cfile, "config file", NULL },
+            { "configfile", 'c', 0, G_OPTION_ARG_STRING, &cfile, "config file", NULL },
             { NULL }
     };
     static GError *err;
@@ -2398,10 +2452,15 @@ main(int argc, char *argv[]) {
         return EXIT_SUCCESS;
     }
 
-    if (cfile)
-	    configfile = g_strdup_printf(cfile);
+    if( getenv("XDG_CONFIG_HOME") )
+        config_base = g_strdup_printf("%s", getenv("XDG_CONFIG_HOME"));
     else
-	    configfile = g_strdup_printf(RCFILE);
+        config_base = g_strdup_printf("%s/.config/", getenv("HOME"));
+
+    if (cfile)
+        configfile = g_strdup_printf(cfile);
+    else
+        configfile = g_strdup_printf(RCFILE);
 
     if (!g_thread_supported())
         g_thread_init(NULL);
