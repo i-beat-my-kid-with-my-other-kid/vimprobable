@@ -61,7 +61,7 @@ static const char progressborderright   = ']';
 
 /* whitelist */
 #define             ENABLE_WHITELIST_SUPPORT
-#define             WHITELIST_STORAGE_FILENAME  "%s/vimprobable/whitelist", getenv("XDG_CONFIG_HOME")
+#define             WHITELIST_STORAGE_FILENAME  "%s/vimprobable/whitelist", config_base
 
 /* downloads directory */
 #define             DOWNLOADS_PATH              "%s/downloads", getenv("HOME")
