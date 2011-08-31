@@ -35,7 +35,7 @@ static const char *urlboxbgcolor[]      = { "#0f0f0f",              "#0f0f0f",  
                                         /*  normal,                 error               */
 static const char *completionfont[]     = { "terminus normal 8",    "terminus normal 8" };
                                                                                         /* topborder color */
-static const char *completioncolor[]    = { "#008787",              "#ed3434",              "#0f0f0f" };
+static const char *completioncolor[]    = { "#008787",              "#00cc55",              "#0f0f0f" };
                                                                                         /* current row background */
 static const char *completionbgcolor[]  = { "#0f0f0f",              "#0f0f0f",              "#006060" };
 /* pango markup for prefix highliting:      opening,                closing             */
