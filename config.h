@@ -44,6 +44,7 @@ static const char *completionbgcolor[]  = { "#0f0f0f",              "#0f0f0f",  
 
 static const char statusfont[]          = "terminus normal 8";   /* font for status bar */
 #define             ENABLE_HISTORY_INDICATOR
+#define             ENABLE_SEARCH_HISTORY
 #define             ENABLE_INCREMENTAL_SEARCH
 #define             ENABLE_WGET_PROGRESS_BAR
 #define             ENABLE_WGET_PACMAN_PROGRESS_BAR
