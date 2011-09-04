@@ -93,6 +93,8 @@ static void set_widget_font_and_color(GtkWidget *widget, const char *font_str,
 
 static gboolean history(void);
 static gboolean process_set_line(char *line);
+static gboolean save_search_term(const char *term);
+static gboolean read_search_term(void);
 void save_command_history(char *line);
 void toggle_proxy(gboolean onoff);
 void toggle_scrollbars(gboolean onoff);
@@ -470,6 +472,9 @@ inputbox_activate_cb(GtkEntry *entry, gpointer user_data) {
         webkit_web_view_set_highlight_text_matches(webview, TRUE);
 #endif
         count = 0;
+#ifdef ENABLE_SEARCH_HISTORY
+        save_search_term(&text[1]);
+#endif
 #ifndef ENABLE_INCREMENTAL_SEARCH
         a.s =& text[1];
         a.i = searchoptions | (forward ? DirectionForward : DirectionBackwards);
@@ -1219,7 +1224,10 @@ search(const Arg *arg) {
         search_handle = g_strdup_printf(arg->s);
     }
     if (!search_handle)
-        return TRUE;
+#ifdef ENABLE_SEARCH_HISTORY
+        if (!read_search_term())
+#endif
+            return TRUE;
     if (arg->i & DirectionAbsolute)
         search_direction = direction;
     else
@@ -1822,6 +1830,36 @@ process_line(char *line) {
         g_free(a.s);
     }
     return success;
+}
+
+static gboolean
+save_search_term(const char *term) {
+    FILE *f;
+    const char *filename;
+
+    filename = g_strdup_printf(SEARCH_HISTORY_FILENAME);
+    if ((f = fopen(filename, "w")) == NULL)
+        return FALSE;
+    fprintf(f, "%s", term);
+    fclose(f);
+    return TRUE;
+}
+
+static gboolean
+read_search_term(void) {
+    FILE *f;
+    const char *filename;
+    char buffer[512] = "";
+
+    filename = g_strdup_printf(SEARCH_HISTORY_FILENAME);
+    if ((f = fopen(filename, "r")) == NULL)
+        return FALSE;
+    fgets(buffer, 512, f);
+    fclose(f);
+    if (strlen(buffer) == 0)
+        return FALSE;
+    search_handle = g_strdup_printf(buffer);
+    return TRUE;
 }
 
 static gboolean

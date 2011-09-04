@@ -175,6 +175,9 @@ enum ConfigFileError {
 #define             HISTORY_STORAGE_FILENAME    "%s/vimprobable/history", config_base
 #define             CLOSED_URL_FILENAME         "%s/vimprobable/closed", config_base
 
+/* search history */
+#define             SEARCH_HISTORY_FILENAME        "%s/vimprobable/search", config_base
+
 /* searchengines */
 #define             SEARCHENGINES_STORAGE_FILENAME "%s/vimprobable/searchengines", config_base
 
