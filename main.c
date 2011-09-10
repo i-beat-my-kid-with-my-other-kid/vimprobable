@@ -556,6 +556,12 @@ inputbox_keypress_cb(GtkEntry *entry, GdkEventKey *event) {
             a.i = DirectionPrev;
             return complete(&a);
         break;
+        case GDK_i:
+            if (event->state == GDK_CONTROL_MASK) {
+                a.i = DirectionNext;
+                return complete(&a);
+            }
+        break;
     }
 
     if (mode == ModeHints) {
